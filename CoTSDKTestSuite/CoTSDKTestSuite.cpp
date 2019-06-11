@@ -893,6 +893,7 @@ void showEmployeeMenu(Company &company) {
 	}
 }
 
+//Main controller interface
 // int _tmain (int argc, TCHAR *argv[])
 int main() {
 	Company company = getBootPrompt();
