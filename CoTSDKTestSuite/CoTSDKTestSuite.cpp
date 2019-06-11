@@ -20,7 +20,8 @@
 using namespace std;
 
 class User;
-const string COMPANY_FILE_ADDRESS = "company_info.txt";
+const string COMPANY_FILE_ADDRESS = "AAAcompany_info.txt";
+const string MESSAGES_DIR = "AAAMessages";
 int convertInt(string str);
 
 const int STARTING_YEAR = 1900;
@@ -168,6 +169,21 @@ public:
 
 //TODO add documentation
 class Project {
+	/*
+	=== Attributes ===
+	vector<User> members: list of User objects listed as members of initialized project
+	string name: the name of the project listed
+	vector<string> files: list of file directories added to project
+
+	=== Functions ===
+	addFile(string): UNDER CONSTRUCTION
+	addMember(User): adds User object to members list
+	removeMember(int): removes member by index from members list
+	changeName(string): changes name of project
+	getName(): returns name of project
+	getMembers(): returns list of members of project
+	getFilesList(): returns list of file directories
+	*/
 
 private:
 	vector<User> members;
@@ -210,7 +226,6 @@ public:
 	vector<string> getFilesList() {
 		return files;
 	}
-
 };
 
 class Company {
@@ -444,16 +459,9 @@ int convertInt(string str) {
 }
 
 //Helper function to see if directory exists within given space
-//TODO removed for now
-bool dirExists(const string dirName_in) {
-	DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
-	if (ftyp == INVALID_FILE_ATTRIBUTES)
-		return false;  //something is wrong with your path!
-
-	if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
-		return true;   // this is a directory!
-
-	return false;    // this is not a directory!
+bool dirExists(string dir) {
+	struct stat buffer;
+	return (stat(dir.c_str(), &buffer) == 0);
 }
 
 void save(Company company) {
@@ -461,25 +469,17 @@ void save(Company company) {
 	// First line is the company name
 	// Employee data is ordered as (ID), (Username), (Password), (CoT Username)
 	// CoT Username = "null" if it DNE
-
-	if (false/*!dirExists(COMPANY_FILE_ADDRESS)*/) {
-		//TODO Make directory
-		cout << "Nothing works" << endl;
-	}
-	else {
-		ofstream writer;
-		writer.open(COMPANY_FILE_ADDRESS);
-		vector<User> saveEmployees = company.getEmployees();
-
-		writer << company.getName() + ", " + to_string(company.getnumTotalEmployees()) << endl;
-		for (int i = 0; i < (int)saveEmployees.size(); i++) {
-			writer << to_string(saveEmployees[i].getID()) + "," + saveEmployees[i].getUsername() +
-				"," + saveEmployees[i].getPassword() + "," + saveEmployees[i].getCotAccountName() << endl;
-		}
-
-		writer.close();
+	ofstream writer;
+	writer.open(COMPANY_FILE_ADDRESS);
+	vector<User> saveEmployees = company.getEmployees();
+	
+	writer << company.getName() + ", " + to_string(company.getnumTotalEmployees()) << endl;
+	for (int i = 0; i < (int)saveEmployees.size(); i++) {
+		writer << to_string(saveEmployees[i].getID()) + "," + saveEmployees[i].getUsername() +
+			"," + saveEmployees[i].getPassword() + "," + saveEmployees[i].getCotAccountName() << endl;
 	}
 
+	writer.close();
 }
 
 //Loads company on startup
@@ -754,6 +754,17 @@ void displayProjects(Company &company, int userIndex) {
 	}
 }
 
+void checkDirectories() {
+	if (!dirExists(COMPANY_FILE_ADDRESS)) {
+		ofstream receiverOutfile(COMPANY_FILE_ADDRESS, ios::app);
+		receiverOutfile.close();
+	}
+
+	if (!dirExists(MESSAGES_DIR)) {
+		_mkdir(MESSAGES_DIR.c_str());
+	}
+}
+
 //TODO save projects in file
 void showProjectMenu(Company &company, int userIndex) {
 	//TODO Need to limit search to projects with userIndex as member
@@ -778,10 +789,9 @@ void showProjectMenu(Company &company, int userIndex) {
 		cout << "	2: Add Member" << endl;
 		cout << "	3: Remove Member" << endl;
 		cout << "	4: Display Members" << endl;
-		cout << "	5: Add File To Project (UNDER CONSTRUCTION)" << endl;
-		cout << "	6: Add Folder To Project (UNDER CONSTRUCTION)" << endl;
-		cout << "	7: Delete Project" << endl;
-		cout << "	8: Previous Menu" << endl;
+		cout << "	5: Add File/Folder To Project (UNDER CONSTRUCTION)" << endl;
+		cout << "	6: Delete Project" << endl;
+		cout << "	7: Previous Menu" << endl;
 
 		string choice;
 		getline(cin, choice);
@@ -805,14 +815,11 @@ void showProjectMenu(Company &company, int userIndex) {
 			break;
 
 		case 6:
-			break;
-
-		case 7:
 			company.removeProject(projectIndex);
 			projectRunning = false;
 			break;
 
-		case 8:
+		case 7:
 			projectRunning = false;
 			break;
 
@@ -896,6 +903,7 @@ void showEmployeeMenu(Company &company) {
 //Main controller interface
 // int _tmain (int argc, TCHAR *argv[])
 int main() {
+	checkDirectories();
 	Company company = getBootPrompt();
 
 	bool running = true;
