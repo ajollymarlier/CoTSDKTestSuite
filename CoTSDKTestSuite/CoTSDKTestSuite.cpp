@@ -5,23 +5,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <cstdlib>
-#include <cmath>
 #include <ctime>
 #include <vector>
-#include <algorithm>
-#include <string>
-#include <windows.h>
-#include <chrono>
 #include <direct.h>
-#include <filesystem>
-
-//#include <libs/boost/filesystem/filesystem.hpp>
 using namespace std;
 
 class User;
-const string COMPANY_FILE_ADDRESS = "AAAcompany_info.txt";
-const string MESSAGES_DIR = "AAAMessages";
+const string COMPANY_FILE_ADDRESS = "company_info.txt";
+const string MESSAGES_DIR = "Messages";
 int convertInt(string str);
 
 const int STARTING_YEAR = 1900;
