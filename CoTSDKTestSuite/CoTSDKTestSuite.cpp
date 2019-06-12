@@ -8,6 +8,8 @@
 #include <ctime>
 #include <vector>
 #include <direct.h>
+#include "shlobj.h"
+#include <string>
 using namespace std;
 
 class User;
@@ -158,7 +160,6 @@ public:
 
 };
 
-//TODO add documentation
 class Project {
 	/*
 	=== Attributes ===
@@ -184,6 +185,10 @@ private:
 	//Add files
 
 public:
+	Project(string projectName) {
+		name = projectName;
+	}
+
 	Project(User creator, string projectName) {
 		members.push_back(creator);
 		name = projectName;
@@ -470,11 +475,26 @@ void save(Company company) {
 			"," + saveEmployees[i].getPassword() + "," + saveEmployees[i].getCotAccountName() << endl;
 	}
 
+	writer << endl;
+	vector<Project> saveProjects = company.getProjects();
+
+	for (int i = 0; i < (int)saveProjects.size(); i++) {
+		writer << saveProjects[i].getName() + "," + to_string(saveProjects[i].getMembers().size()) + "," + 
+			to_string(saveProjects[i].getFilesList().size()) << endl;
+
+		for (auto &member : saveProjects[i].getMembers()) {
+			writer << member.getUsername() << endl;
+		}
+
+		for (auto &filePath : saveProjects[i].getFilesList()) {
+			writer << filePath << endl;
+		}
+	}
+
 	writer.close();
 }
 
 //Loads company on startup
-//TODO Add folder if not present when loading file
 Company load() {
 	//load data
 	ifstream reader;
@@ -494,20 +514,55 @@ Company load() {
 	Company company(headerVector[0], convertInt(headerVector[1]));
 	string employeeInfo;
 
-	while (getline(reader, employeeInfo)) {
-		vector<string> infoVector;
-		stringstream infoStream(employeeInfo);
-		string infoToken;
+	//Reads and parses employee info
+	while (getline(reader, employeeInfo) && employeeInfo != "") {
+		vector<string> eInfoVector;
+		stringstream eInfoStream(employeeInfo);
+		string eInfoToken;
 
-		while (getline(infoStream, infoToken, ','))
-			infoVector.push_back(infoToken);
+		while (getline(eInfoStream, eInfoToken, ','))
+			eInfoVector.push_back(eInfoToken);
 
-		company.addEmployee(User(convertInt(infoVector[0]), infoVector[1], infoVector[2], infoVector[3]));
-		infoVector.clear();
+		company.addEmployee(User(convertInt(eInfoVector[0]), eInfoVector[1], eInfoVector[2], eInfoVector[3]));
+		eInfoVector.clear();
 
 		company.decrementNumTotalEmployees();
 	}
 
+	string projectInfo;
+	while (getline(reader, projectInfo) && projectInfo != "") {
+		vector<string> pInfoVector;
+		stringstream pInfoStream(projectInfo);
+		string pInfoToken;
+
+		while (getline(pInfoStream, pInfoToken, ','))
+			pInfoVector.push_back(pInfoToken);
+
+		Project temp = Project(pInfoVector[0]);
+		string memberName;
+
+		for (int i = 0; i < convertInt(pInfoVector[1]); i++) {
+			getline(reader, memberName);
+			
+			vector<User> companyEmployees = company.getEmployees();
+			for (int j = 0; j < (int)companyEmployees.size(); j++) {
+				if (companyEmployees[j].getUsername() == memberName) {
+					temp.addMember(companyEmployees[j]);
+					break;
+				}
+			}
+		}
+
+		string fileDir;
+		for (int i = 0; i < convertInt(pInfoVector[2]); i++) {
+			getline(reader, fileDir);
+			temp.addFile(fileDir);
+		}
+
+		company.addProject(temp);
+	}
+
+	reader.close();
 	return company;
 
 }
@@ -523,7 +578,6 @@ Company getBootPrompt() {
 
 	switch (convertInt(bootChoice)) {
 	case 1: {
-		//TODO add existing check or not
 		string directory = "Messages";
 
 		//TODO will only work on windows with admin
@@ -756,7 +810,6 @@ void checkDirectories() {
 	}
 }
 
-//TODO save projects in file
 void showProjectMenu(Company &company, int userIndex) {
 	//TODO Need to limit search to projects with userIndex as member
 	cout << "Enter Target Project Name" << endl;
@@ -803,6 +856,7 @@ void showProjectMenu(Company &company, int userIndex) {
 			break;
 
 		case 5:
+			company.getProjects()[projectIndex].addFile("Hello/Goodbye.txt"); // TODO TEMPORARY
 			break;
 
 		case 6:
@@ -818,6 +872,8 @@ void showProjectMenu(Company &company, int userIndex) {
 			cout << "That is not a valid option" << endl;
 			break;
 		}
+
+		save(company);
 	}
 	
 	if (projectIndex == -1) {
