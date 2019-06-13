@@ -460,6 +460,7 @@ bool dirExists(string dir) {
 	return (stat(dir.c_str(), &buffer) == 0);
 }
 
+//Saves employee, company, and project data in company_info.txt
 void save(Company company) {
 	// Save data
 	// First line is the company name
@@ -494,7 +495,7 @@ void save(Company company) {
 	writer.close();
 }
 
-//Loads company on startup
+//Loads company on startup from company_info.txt
 Company load() {
 	//load data
 	ifstream reader;
@@ -529,18 +530,21 @@ Company load() {
 		company.decrementNumTotalEmployees();
 	}
 
+	//Reads second layer of project info
 	string projectInfo;
 	while (getline(reader, projectInfo) && projectInfo != "") {
 		vector<string> pInfoVector;
 		stringstream pInfoStream(projectInfo);
 		string pInfoToken;
 
+		//Reads project info line
 		while (getline(pInfoStream, pInfoToken, ','))
 			pInfoVector.push_back(pInfoToken);
 
 		Project temp = Project(pInfoVector[0]);
 		string memberName;
 
+		//Reads subsequent employee name lines
 		for (int i = 0; i < convertInt(pInfoVector[1]); i++) {
 			getline(reader, memberName);
 			
@@ -553,6 +557,7 @@ Company load() {
 			}
 		}
 
+		//Reads subsequent file directory lines
 		string fileDir;
 		for (int i = 0; i < convertInt(pInfoVector[2]); i++) {
 			getline(reader, fileDir);
@@ -603,6 +608,7 @@ Company getBootPrompt() {
 	};
 }
 
+//Prompts to send message between two employees
 void sendMessagePrompt(Company &company, int userIndex) {
 	cout << "Enter Name of Receiving Employee: " << endl;
 	string receiveEmployee;
@@ -637,6 +643,8 @@ void displayMessages(Company &company, int userIndex) {
 	}
 }
 
+
+//Checks if name is present in employees list
 bool containsName(vector<User> projectMembers, string name) {
 	for (int i = 0; i < projectMembers.size(); i++) {
 		if (projectMembers[i].getUsername() == name)
@@ -646,6 +654,7 @@ bool containsName(vector<User> projectMembers, string name) {
 	return false;
 }
 
+//Prompts user to add employee to company
 void addMemberPrompt(Company &company, int projectIndex) {
 	cout << "Enter Name of Employee To Be Added: " << endl;
 	string addName;
@@ -665,6 +674,7 @@ void addMemberPrompt(Company &company, int projectIndex) {
 	cout << "Employee Could Not Be Added" << endl;
 }
 
+//Prompts to remove user from company
 void removeMemberPrompt(Company &company, int projectIndex) {
 	cout << "Enter Name of Employee To Be Removed: " << endl;
 	string addName;
@@ -682,6 +692,7 @@ void removeMemberPrompt(Company &company, int projectIndex) {
 	cout << "Employee Not Found" << endl;
 }
 
+//Prompts to create project, add members, and add to company
 void createProject(Company &company, int userIndex) {
 	cout << "Enter a Name For This Project" << endl;
 	string name;
@@ -741,6 +752,7 @@ int login(Company &company) {
 	return -1; //Represents failed login User
 }
 
+//Prompts to update project name
 void getNewProjectName(Company &company, int projectIndex) {
 	cout << "Enter New Name For Project" << endl;
 	string newName;
@@ -763,6 +775,7 @@ string listMembers(Company &company, vector<User> projectMembers) {
 	return membersList;
 }
 
+//Displays all projects with logged in user as a member
 void displayProjects(Company &company, int userIndex) {
 	vector<Project> projects = company.getProjects();
 
@@ -799,6 +812,7 @@ void displayProjects(Company &company, int userIndex) {
 	}
 }
 
+//checks to see if company_info.txt and Messages folder exists
 void checkDirectories() {
 	if (!dirExists(COMPANY_FILE_ADDRESS)) {
 		ofstream receiverOutfile(COMPANY_FILE_ADDRESS, ios::app);
@@ -810,8 +824,8 @@ void checkDirectories() {
 	}
 }
 
+//Shows menu for project functionality
 void showProjectMenu(Company &company, int userIndex) {
-	//TODO Need to limit search to projects with userIndex as member
 	cout << "Enter Target Project Name" << endl;
 	string projectName;
 	getline(cin, projectName);
