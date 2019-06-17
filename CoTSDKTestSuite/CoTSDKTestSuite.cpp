@@ -10,6 +10,16 @@
 #include <direct.h>
 #include "shlobj.h"
 #include <string>
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+
+#include <direct.h>
+#define GetCurrentDir _getcwd
+//No Non-Windows Solution
+
 using namespace std;
 
 class User;
@@ -824,6 +834,64 @@ void checkDirectories() {
 	}
 }
 
+//TODO under construction
+bool browseFile(Company &company, int projectIndex) {
+	char buff[FILENAME_MAX];
+	char* workingPath = GetCurrentDir(buff, FILENAME_MAX);
+
+	char filename[MAX_PATH];
+
+	OPENFILENAMEA ofn;
+	ZeroMemory(&filename, sizeof(filename));
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
+	//ofn.lpstrFilter = "Text Files\0*.txt\0Any File\0*.*\0"; // File type filter
+	ofn.lpstrFile = filename;
+	ofn.nMaxFile = MAX_PATH;
+	//ofn.lpstrTitle = "Select a File, yo!"; //Sets window title
+	ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+	if (GetOpenFileNameA(&ofn))
+	{
+		vector<Project> projects = company.getProjects();
+		projects[projectIndex].addFile(filename);
+		
+		company.updateProjects(projects);
+		cout << "Added \"" << filename << "\" to project. \n";
+
+		//Changes working path back to where .cpp file is
+		_chdir(workingPath);
+		return true;
+	}
+	else
+	{
+		// All this stuff below is to tell you exactly how you messed up above. 
+		// Once you've got that fixed, you can often (not always!) reduce it to a 'user cancelled' assumption.
+		switch (CommDlgExtendedError())
+		{
+		case CDERR_DIALOGFAILURE: std::cout << "CDERR_DIALOGFAILURE\n";   break;
+		case CDERR_FINDRESFAILURE: std::cout << "CDERR_FINDRESFAILURE\n";  break;
+		case CDERR_INITIALIZATION: std::cout << "CDERR_INITIALIZATION\n";  break;
+		case CDERR_LOADRESFAILURE: std::cout << "CDERR_LOADRESFAILURE\n";  break;
+		case CDERR_LOADSTRFAILURE: std::cout << "CDERR_LOADSTRFAILURE\n";  break;
+		case CDERR_LOCKRESFAILURE: std::cout << "CDERR_LOCKRESFAILURE\n";  break;
+		case CDERR_MEMALLOCFAILURE: std::cout << "CDERR_MEMALLOCFAILURE\n"; break;
+		case CDERR_MEMLOCKFAILURE: std::cout << "CDERR_MEMLOCKFAILURE\n";  break;
+		case CDERR_NOHINSTANCE: std::cout << "CDERR_NOHINSTANCE\n";     break;
+		case CDERR_NOHOOK: std::cout << "CDERR_NOHOOK\n";          break;
+		case CDERR_NOTEMPLATE: std::cout << "CDERR_NOTEMPLATE\n";      break;
+		case CDERR_STRUCTSIZE: std::cout << "CDERR_STRUCTSIZE\n";      break;
+		case FNERR_BUFFERTOOSMALL: std::cout << "FNERR_BUFFERTOOSMALL\n";  break;
+		case FNERR_INVALIDFILENAME: std::cout << "FNERR_INVALIDFILENAME\n"; break;
+		case FNERR_SUBCLASSFAILURE: std::cout << "FNERR_SUBCLASSFAILURE\n"; break;
+		default: std::cout << "You cancelled.\n";
+		}
+
+		return false;
+	}
+}
+
 //Shows menu for project functionality
 void showProjectMenu(Company &company, int userIndex) {
 	cout << "Enter Target Project Name" << endl;
@@ -847,7 +915,7 @@ void showProjectMenu(Company &company, int userIndex) {
 		cout << "	2: Add Member" << endl;
 		cout << "	3: Remove Member" << endl;
 		cout << "	4: Display Members" << endl;
-		cout << "	5: Add File/Folder To Project (UNDER CONSTRUCTION)" << endl;
+		cout << "	5: Add File/Folder To Project" << endl;
 		cout << "	6: Delete Project" << endl;
 		cout << "	7: Previous Menu" << endl;
 
@@ -870,7 +938,7 @@ void showProjectMenu(Company &company, int userIndex) {
 			break;
 
 		case 5:
-			company.getProjects()[projectIndex].addFile("Hello/Goodbye.txt"); // TODO TEMPORARY
+			browseFile(company, projectIndex);
 			break;
 
 		case 6:

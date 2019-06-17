@@ -1,8 +1,9 @@
-Cryptomill, 6
+Cryptomill, 7
 1,Arun,12345,null
 2,Mathew,12345,null
 3,Cassandra,12345,null
 4,Nandini,12345,null
+6,Max,12345,null
 
 Test Project,2,0
 Arun
@@ -12,3 +13,11 @@ Arun
 Cassandra
 Hello/Goodbye.txt
 Goodbye/Hello.txt
+Crypto,2,5
+Arun
+Nandini
+C:\Users\Arun\source\repos\CoTSDKTestSuite\CoTSDKTestSuite\company_info.txt
+C:\Users\Arun\Desktop\Voicemail Script.txt
+C:\Users\Arun\Downloads\Personal-Projects-master\Personal-Projects-master\README.md
+C:\Users\Arun\Downloads\Personal-Projects-master\Personal-Projects-master\README.md
+C:\Users\Arun\Downloads\problem_set0 (1).pdf
