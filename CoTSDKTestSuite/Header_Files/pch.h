@@ -9,6 +9,26 @@
 #ifndef PCH_H
 #define PCH_H
 
-// TODO: add headers that you want to pre-compile here
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <ctime>
+#include <vector>
+#include <direct.h>
+#include "shlobj.h"
+#include <string>
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+
+#include <direct.h>
+#define GetCurrentDir _getcwd
+//No Non-Windows Solution
+
+using namespace std;
+/*using namespace NUser;
+using namespace NCompany;*/
 
 #endif //PCH_H
