@@ -834,7 +834,7 @@ void checkDirectories() {
 	}
 }
 
-//TODO under construction
+//Open dialog to select file and add to project
 bool browseFile(Company &company, int projectIndex) {
 	char buff[FILENAME_MAX];
 	char* workingPath = GetCurrentDir(buff, FILENAME_MAX);
@@ -855,10 +855,17 @@ bool browseFile(Company &company, int projectIndex) {
 	if (GetOpenFileNameA(&ofn))
 	{
 		vector<Project> projects = company.getProjects();
-		projects[projectIndex].addFile(filename);
-		
-		company.updateProjects(projects);
-		cout << "Added \"" << filename << "\" to project. \n";
+
+		string filenamepath(filename);
+		if (!(filenamepath.substr(filenamepath.length() - 4) == ".tef") || true/*TODO check contains*/) {
+			projects[projectIndex].addFile(filename);
+
+			company.updateProjects(projects);
+			cout << "Added \"" << filename << "\" To Project. \n";
+		}
+		else {
+			cout << "Unable To Add File" << endl;
+		}
 
 		//Changes working path back to where .cpp file is
 		_chdir(workingPath);
@@ -870,25 +877,35 @@ bool browseFile(Company &company, int projectIndex) {
 		// Once you've got that fixed, you can often (not always!) reduce it to a 'user cancelled' assumption.
 		switch (CommDlgExtendedError())
 		{
-		case CDERR_DIALOGFAILURE: std::cout << "CDERR_DIALOGFAILURE\n";   break;
-		case CDERR_FINDRESFAILURE: std::cout << "CDERR_FINDRESFAILURE\n";  break;
-		case CDERR_INITIALIZATION: std::cout << "CDERR_INITIALIZATION\n";  break;
-		case CDERR_LOADRESFAILURE: std::cout << "CDERR_LOADRESFAILURE\n";  break;
-		case CDERR_LOADSTRFAILURE: std::cout << "CDERR_LOADSTRFAILURE\n";  break;
-		case CDERR_LOCKRESFAILURE: std::cout << "CDERR_LOCKRESFAILURE\n";  break;
-		case CDERR_MEMALLOCFAILURE: std::cout << "CDERR_MEMALLOCFAILURE\n"; break;
-		case CDERR_MEMLOCKFAILURE: std::cout << "CDERR_MEMLOCKFAILURE\n";  break;
-		case CDERR_NOHINSTANCE: std::cout << "CDERR_NOHINSTANCE\n";     break;
-		case CDERR_NOHOOK: std::cout << "CDERR_NOHOOK\n";          break;
-		case CDERR_NOTEMPLATE: std::cout << "CDERR_NOTEMPLATE\n";      break;
-		case CDERR_STRUCTSIZE: std::cout << "CDERR_STRUCTSIZE\n";      break;
-		case FNERR_BUFFERTOOSMALL: std::cout << "FNERR_BUFFERTOOSMALL\n";  break;
-		case FNERR_INVALIDFILENAME: std::cout << "FNERR_INVALIDFILENAME\n"; break;
-		case FNERR_SUBCLASSFAILURE: std::cout << "FNERR_SUBCLASSFAILURE\n"; break;
-		default: std::cout << "You cancelled.\n";
+		case CDERR_DIALOGFAILURE: cout << "CDERR_DIALOGFAILURE" << endl;   break;
+		case CDERR_FINDRESFAILURE: cout << "CDERR_FINDRESFAILURE" << endl;  break;
+		case CDERR_INITIALIZATION: cout << "CDERR_INITIALIZATION" << endl;  break;
+		case CDERR_LOADRESFAILURE: cout << "CDERR_LOADRESFAILURE" << endl;  break;
+		case CDERR_LOADSTRFAILURE: cout << "CDERR_LOADSTRFAILURE" << endl;  break;
+		case CDERR_LOCKRESFAILURE: cout << "CDERR_LOCKRESFAILURE" << endl;  break;
+		case CDERR_MEMALLOCFAILURE: cout << "CDERR_MEMALLOCFAILURE" << endl;; break;
+		case CDERR_MEMLOCKFAILURE: cout << "CDERR_MEMLOCKFAILURE" << endl;  break;
+		case CDERR_NOHINSTANCE: cout << "CDERR_NOHINSTANCE" << endl;     break;
+		case CDERR_NOHOOK: cout << "CDERR_NOHOOK" << endl;          break;
+		case CDERR_NOTEMPLATE: cout << "CDERR_NOTEMPLATE" << endl;      break;
+		case CDERR_STRUCTSIZE: cout << "CDERR_STRUCTSIZE" << endl;      break;
+		case FNERR_BUFFERTOOSMALL: cout << "FNERR_BUFFERTOOSMALL" << endl;  break;
+		case FNERR_INVALIDFILENAME: cout << "FNERR_INVALIDFILENAME" << endl; break;
+		case FNERR_SUBCLASSFAILURE: cout << "FNERR_SUBCLASSFAILURE" << endl; break;
+		default: cout << "No File Selected." << endl;
 		}
 
 		return false;
+	}
+}
+
+void displayFiles(Company &company, int projectIndex) {
+	if (company.getProjects()[projectIndex].getFilesList().size() == 0)
+		cout << "No Files Exist For This Project" << endl;
+	else {
+		for (auto filePath : company.getProjects()[projectIndex].getFilesList()) {
+			cout << filePath << endl;
+		}
 	}
 }
 
@@ -907,7 +924,6 @@ void showProjectMenu(Company &company, int userIndex) {
 		}
 	}
 
-	//TODO under construction
 	bool projectRunning = true;
 	while (projectRunning && projectIndex != -1) {
 		cout << projects[projectIndex].getName() + " Project Menu" << endl;
@@ -915,9 +931,10 @@ void showProjectMenu(Company &company, int userIndex) {
 		cout << "	2: Add Member" << endl;
 		cout << "	3: Remove Member" << endl;
 		cout << "	4: Display Members" << endl;
-		cout << "	5: Add File/Folder To Project" << endl;
-		cout << "	6: Delete Project" << endl;
-		cout << "	7: Previous Menu" << endl;
+		cout << "	5: Add File To Project" << endl;
+		cout << "	6. Display Files In Project" << endl;
+		cout << "	7: Delete Project" << endl;
+		cout << "	8: Previous Menu" << endl;
 
 		string choice;
 		getline(cin, choice);
@@ -932,6 +949,7 @@ void showProjectMenu(Company &company, int userIndex) {
 
 		case 3:
 			removeMemberPrompt(company, projectIndex);
+			break;
 
 		case 4:
 			cout << "Members: " + listMembers(company, company.getProjects()[projectIndex].getMembers()) << endl;
@@ -942,11 +960,15 @@ void showProjectMenu(Company &company, int userIndex) {
 			break;
 
 		case 6:
+			displayFiles(company, projectIndex);
+			break;
+
+		case 7:
 			company.removeProject(projectIndex);
 			projectRunning = false;
 			break;
 
-		case 7:
+		case 8:
 			projectRunning = false;
 			break;
 
