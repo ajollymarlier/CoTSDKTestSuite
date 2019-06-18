@@ -285,6 +285,8 @@ void sendMessagePrompt(Company &company, int userIndex) {
 
 //Displays messages of user
 void displayMessages(Company &company, int userIndex) {
+	cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+
 	ifstream reader;
 	// TODO quick fix for now. Inefficient with large total num of employees
 	//TODO need way to identify with whom different message threads are engaging
@@ -296,11 +298,11 @@ void displayMessages(Company &company, int userIndex) {
 			cout << message << endl;
 		}
 
+		//TODO When folder doesnt exist, line still prints
 		cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << endl;
 		reader.close();
 	}
 }
-
 
 //Checks if name is present in employees list
 bool containsName(vector<User> projectMembers, string name) {
