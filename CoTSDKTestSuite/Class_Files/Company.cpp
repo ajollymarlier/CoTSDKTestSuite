@@ -30,6 +30,7 @@ void Company::decrementNumTotalEmployees() {
 		numTotalEmployees--;
 }
 
+//Prevent duplicate username addition
 void Company::addEmployee() {
 	string empName;
 	string empPass;
@@ -45,6 +46,9 @@ void Company::addEmployee() {
 	_mkdir(directory.c_str());
 
 	numTotalEmployees++;
+	system("cls");
+
+	cout << "Employee Added" << endl;
 }
 
 void Company::addEmployee(User employee) {
@@ -57,9 +61,12 @@ bool Company::removeEmployee() {
 	string name;
 	getline(cin, name);
 
+	system("cls");
+
 	for (int i = 0; i < (int)employees.size(); i++) {
 		if (employees[i].getUsername() == name) {
 			employees.erase(employees.begin() + i);
+			cout << "Employee Removed" << endl;
 			return true;
 		}
 	}
@@ -69,6 +76,8 @@ bool Company::removeEmployee() {
 }
 
 void Company::displayEmployees() {
+	system("cls");
+
 	cout << "Employees: " << endl;
 	for (int i = 0; i < employees.size(); i++) {
 		User user = employees[i];

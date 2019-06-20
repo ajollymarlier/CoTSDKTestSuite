@@ -33,6 +33,7 @@ string User::getUsername() {
 	return username;
 }
 
+//TODO prevent duplicate names
 void User::changeUsername(string name) {
 	numUsernameChanges++;
 	username = name;

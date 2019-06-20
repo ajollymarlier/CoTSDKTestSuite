@@ -71,6 +71,9 @@ void getNewUsername(Company &company, int userIndex) {
 	employees[userIndex].changeUsername(newName);
 	company.updateEmployees(employees);
 
+	system("cls");
+	cout << "Username Changed" << endl;
+
 }
 
 // Prompt to get information when updating employee password
@@ -83,6 +86,9 @@ void getNewPassword(Company &company, int userIndex) {
 
 	employees[userIndex].changePassword(newPass);
 	company.updateEmployees(employees);
+
+	system("cls");
+	cout << "Password Changed" << endl;
 }
 
 //Prompt to authenticate cot account and add to employee
@@ -91,6 +97,9 @@ void assignCoTAccount(Company &company, int userIndex) {
 
 	employees[userIndex] = employees[userIndex].updateCotAccountName();
 	company.updateEmployees(employees);
+
+	system("cls");
+	cout << "Circles of Trust Account Added" << endl;
 }
 
 //Prompt to get new company name when changing company name
@@ -241,6 +250,8 @@ Company getBootPrompt() {
 
 	switch (convertInt(bootChoice)) {
 	case 1: {
+		system("cls");
+
 		string directory = "Messages";
 
 		//TODO will only work on windows with admin
@@ -256,10 +267,13 @@ Company getBootPrompt() {
 	}
 
 	case 2:
+		system("cls");
+
 		return load();
 		break;
 
 	default:
+		system("cls");
 		cout << "That is not a valid option" << endl;
 		return getBootPrompt();
 		break;
@@ -268,6 +282,8 @@ Company getBootPrompt() {
 
 //Prompts to send message between two employees
 void sendMessagePrompt(Company &company, int userIndex) {
+	system("cls");
+
 	cout << "Enter Name of Receiving Employee: " << endl;
 	string receiveEmployee;
 	getline(cin, receiveEmployee);
@@ -277,9 +293,13 @@ void sendMessagePrompt(Company &company, int userIndex) {
 		if (employees[j].getUsername() == receiveEmployee) {
 			//Send Message
 			employees[userIndex].sendMessage(employees[j]);
+
+			system("cls");
+			cout << "Message Sent" << endl;
 			return;
 		}
 	}
+	system("cls");
 	cout << "Employee Not Listed" << endl;
 }
 
@@ -288,19 +308,20 @@ void displayMessages(Company &company, int userIndex) {
 	cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << endl;
 
 	ifstream reader;
-	// TODO quick fix for now. Inefficient with large total num of employees
-	//TODO need way to identify with whom different message threads are engaging
 	for (int i = 0; i < company.getnumTotalEmployees(); i++) {
-		reader.open("Messages/" + to_string(company.getEmployees()[userIndex].getID()) + "/" + to_string(i) +"conversation.txt");
+		string dir = "Messages/" + to_string(company.getEmployees()[userIndex].getID()) + "/" + to_string(i) + "conversation.txt";
 
-		string message;
-		while (getline(reader, message)) {
-			cout << message << endl;
+		if (dirExists(dir)) {
+			reader.open(dir);
+
+			string message;
+			while (getline(reader, message)) {
+				cout << message << endl;
+			}
+
+			cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+			reader.close();
 		}
-
-		//TODO When folder doesnt exist, line still prints
-		cout << "----------------------------------------------------------------------------------------------------------------------------------------------" << endl;
-		reader.close();
 	}
 }
 
@@ -320,6 +341,7 @@ void addMemberPrompt(Company &company, int projectIndex) {
 	string addName;
 	getline(cin, addName);
 
+	system("cls");
 	vector<User> employees = company.getEmployees();
 	vector<Project> projects = company.getProjects();
 	vector<User> projectMembers = projects[projectIndex].getMembers();
@@ -340,6 +362,7 @@ void removeMemberPrompt(Company &company, int projectIndex) {
 	string addName;
 	getline(cin, addName);
 
+	system("cls");
 	vector<Project> projects = company.getProjects();
 	for (int i = 0; i < projects[projectIndex].getMembers().size(); i++) {
 		if (projects[projectIndex].getMembers()[i].getUsername() == addName) {
@@ -369,13 +392,16 @@ void createProject(Company &company, int userIndex) {
 		string choice;
 		getline(cin, choice);
 
+		system("cls");
 		switch (convertInt(choice)) {
 		case 1:
+			system("cls");
 			addMemberPrompt(company, company.getProjects().size() - 1);
 			break;
 
 		case 2:
 			addingMembers = false;
+			cout << "Project Created" << endl;
 			break;
 
 		default:
@@ -400,14 +426,17 @@ int login(Company &company) {
 			getline(cin, pass);
 
 			if (employees[i].getPassword() == pass) {
+				system("cls");
 				cout << "Login Successful" << endl;
 				return i;
 			}
 
+			system("cls");
 			cout << "Incorrect Password" << endl;
 			return -1; //Represents failed login User
 		}
 	}
+	system("cls");
 	cout << "Employee Not Listed" << endl;
 	return -1; //Represents failed login User
 }
@@ -419,6 +448,9 @@ void getNewProjectName(Company &company, int projectIndex) {
 	getline(cin, newName);
 
 	company.getProjects()[projectIndex].changeName(newName);
+
+	system("cls");
+	cout << "Project Name Changed" << endl;
 }
 
 //Helper Method to list members in a project
@@ -507,7 +539,7 @@ bool browseFile(Company &company, int projectIndex) {
 		vector<Project> projects = company.getProjects();
 
 		string filenamepath(filename);
-		if (!(filenamepath.substr(filenamepath.length() - 4) == ".tef") || true/*TODO check contains*/) {
+		if (!(filenamepath.substr(filenamepath.length() - 4) == ".tef")) {
 			projects[projectIndex].addFile(filename);
 
 			company.updateProjects(projects);
@@ -553,8 +585,9 @@ void displayFiles(Company &company, int projectIndex) {
 	if (company.getProjects()[projectIndex].getFilesList().size() == 0)
 		cout << "No Files Exist For This Project" << endl;
 	else {
+		cout << "Files: " << endl;
 		for (auto filePath : company.getProjects()[projectIndex].getFilesList()) {
-			cout << filePath << endl;
+			cout << "	" + filePath << endl;
 		}
 	}
 }
@@ -590,39 +623,49 @@ void showProjectMenu(Company &company, int userIndex) {
 		getline(cin, choice);
 		switch (convertInt(choice)) {
 		case 1:
-			getNewProjectName(company, projectIndex);
+			system("cls");
+			getNewProjectName(company, projectIndex); //TODO not updating menu title
 			break;
 
 		case 2:
+			system("cls");
 			addMemberPrompt(company, projectIndex);
 			break;
 
 		case 3:
-			removeMemberPrompt(company, projectIndex);
+			system("cls");
+			removeMemberPrompt(company, projectIndex); //TODO need to go to previous menu if logged in user gets removed
 			break;
 
 		case 4:
+			system("cls");
 			cout << "Members: " + listMembers(company, company.getProjects()[projectIndex].getMembers()) << endl;
 			break;
 
 		case 5:
+			system("cls");
 			browseFile(company, projectIndex);
 			break;
 
 		case 6:
+			system("cls");
 			displayFiles(company, projectIndex);
 			break;
 
 		case 7:
+			system("cls");
 			company.removeProject(projectIndex);
+			cout << "Project Removed" << endl;
 			projectRunning = false;
 			break;
 
 		case 8:
+			system("cls");
 			projectRunning = false;
 			break;
 
 		default:
+			system("cls");
 			cout << "That is not a valid option" << endl;
 			break;
 		}
@@ -631,6 +674,7 @@ void showProjectMenu(Company &company, int userIndex) {
 	}
 	
 	if (projectIndex == -1) {
+		system("cls");
 		cout << "Project Not Found" << endl;
 	}
 }
@@ -657,42 +701,52 @@ void showEmployeeMenu(Company &company) {
 
 		switch (convertInt(choice)) {
 		case 1:
+			system("cls");
 			getNewUsername(company, userIndex);
 			break;
 
 		case 2:
+			system("cls");
 			getNewPassword(company, userIndex);
 			break;
 
 		case 3:
+			system("cls");
 			assignCoTAccount(company, userIndex);
 			break;
 
 		case 4:
+			system("cls");
 			sendMessagePrompt(company, userIndex);
 			break;
 
 		case 5:
+			system("cls");
 			displayMessages(company, userIndex);
 			break;
 
 		case 6:
+			system("cls");
 			createProject(company, userIndex);
 			break;
 
 		case 7:
+			system("cls");
 			displayProjects(company, userIndex);
 			break;
 
 		case 8:
+			system("cls");
 			showProjectMenu(company, userIndex);
 			break;
 
 		case 9:
+			system("cls");
 			employeeRunning = false;
 			break;
 
 		default:
+			system("cls");
 			cout << "That is not a valid option" << endl;
 			break;
 		}
@@ -707,6 +761,7 @@ int main() {
 	checkDirectories();
 	Company company = getBootPrompt();
 
+	system("cls");
 	bool running = true;
 	while (running) {
 		cout << company.getName() + " Menu: (Enter number of option)" << endl;
@@ -722,23 +777,29 @@ int main() {
 
 		switch (convertInt(choice)) {
 		case 1:
+			system("cls");
 			company.addEmployee();
 			break;
 
 		case 2:
+			system("cls");
 			company.removeEmployee();
 			break;
 
 		case 3:
+			system("cls");
 			company.displayEmployees();
 			break;
 
 		case 4:
+			system("cls");
 			showEmployeeMenu(company);
 			break;
 
 		case 5:
+			system("cls");
 			getNewCompanyName(company);
+			system("cls");
 			break;
 
 		case 6:
@@ -746,6 +807,7 @@ int main() {
 			break;
 
 		default:
+			system("cls");
 			cout << "That is not a valid option" << endl;
 			break;
 		}
