@@ -239,6 +239,20 @@ Company load() {
 
 }
 
+Company createNewCompany() {
+	string directory = "Messages";
+
+	//TODO will only work on windows with admin
+	system("erase Messages /s /q > nul");
+	system("rmdir Messages /s /q > nul");
+	_mkdir(directory.c_str());
+
+	string companyName;
+	cout << "Enter New Company Name: " << endl;
+	getline(cin, companyName);
+	return Company(companyName);
+}
+
 //Prompts user for save/load choice and proceeds accordingly
 Company getBootPrompt() {
 	cout << "Boot Menu: (Enter number of option)" << endl;
@@ -251,25 +265,18 @@ Company getBootPrompt() {
 	switch (convertInt(bootChoice)) {
 	case 1: {
 		system("cls");
-
-		string directory = "Messages";
-
-		//TODO will only work on windows with admin
-		system("erase Messages /s /q > nul"); 
-		system("rmdir Messages /s /q > nul");
-		_mkdir(directory.c_str());
-
-		string companyName;
-		cout << "Enter Company Name: " << endl;
-		getline(cin, companyName);
-		return Company(companyName);
-		break;
+		return createNewCompany();
 	}
 
 	case 2:
 		system("cls");
 
-		return load();
+		if (dirExists(COMPANY_FILE_ADDRESS))
+			return load();
+		else {
+			cout << "No Previous Company Found" << endl;
+			return createNewCompany();
+		}
 		break;
 
 	default:
@@ -327,7 +334,7 @@ void displayMessages(Company &company, int userIndex) {
 
 //Checks if name is present in employees list
 bool containsName(vector<User> projectMembers, string name) {
-	for (int i = 0; i < projectMembers.size(); i++) {
+	for (int i = 0; i < (int) projectMembers.size(); i++) {
 		if (projectMembers[i].getUsername() == name)
 			return true;
 	}
@@ -345,7 +352,7 @@ void addMemberPrompt(Company &company, int projectIndex) {
 	vector<User> employees = company.getEmployees();
 	vector<Project> projects = company.getProjects();
 	vector<User> projectMembers = projects[projectIndex].getMembers();
-	for (int i = 0; i < employees.size(); i++) {
+	for (int i = 0; i < (int) employees.size(); i++) {
 		if (employees[i].getUsername() == addName && !containsName(projectMembers, addName)) {
 			projects[projectIndex].addMember(employees[i]);
 			company.updateProjects(projects);
@@ -364,7 +371,7 @@ void removeMemberPrompt(Company &company, int projectIndex) {
 
 	system("cls");
 	vector<Project> projects = company.getProjects();
-	for (int i = 0; i < projects[projectIndex].getMembers().size(); i++) {
+	for (int i = 0; i < (int) projects[projectIndex].getMembers().size(); i++) {
 		if (projects[projectIndex].getMembers()[i].getUsername() == addName) {
 			projects[projectIndex].removeMember(i);
 			company.updateProjects(projects);
@@ -419,7 +426,7 @@ int login(Company &company) {
 	getline(cin, name);
 
 	vector<User> employees = company.getEmployees();
-	for (int i = 0; i < employees.size(); i++) {
+	for (int i = 0; i < (int) employees.size(); i++) {
 		if (employees[i].getUsername() == name) {
 			cout << "Enter Password: " << endl;
 			string pass;
@@ -447,7 +454,9 @@ void getNewProjectName(Company &company, int projectIndex) {
 	string newName;
 	getline(cin, newName);
 
-	company.getProjects()[projectIndex].changeName(newName);
+	vector<Project> projects = company.getProjects();
+	projects[projectIndex].changeName(newName);
+	company.updateProjects(projects);
 
 	system("cls");
 	cout << "Project Name Changed" << endl;
@@ -456,7 +465,7 @@ void getNewProjectName(Company &company, int projectIndex) {
 //Helper Method to list members in a project
 string listMembers(Company &company, vector<User> projectMembers) {
 	string membersList;
-	for (int k = 0; k < projectMembers.size(); k++) {
+	for (int k = 0; k < (int) projectMembers.size(); k++) {
 		if (k == projectMembers.size() - 1)
 			membersList += projectMembers[k].getUsername();
 
@@ -480,10 +489,10 @@ void displayProjects(Company &company, int userIndex) {
 	vector<string> projectList;
 	cout << "Projects" << endl;
 
-	for (int i = 0; i < projects.size(); i++) {
+	for (int i = 0; i < (int) projects.size(); i++) {
 		vector<User> projectMembers = projects[i].getMembers();
 
-		for (int j = 0; j < projectMembers.size(); j++) {
+		for (int j = 0; j < (int) projectMembers.size(); j++) {
 
 			if (projectMembers[j].getUsername() == company.getEmployees()[userIndex].getUsername()) {
 
@@ -592,15 +601,34 @@ void displayFiles(Company &company, int projectIndex) {
 	}
 }
 
+//Returns 1 if user is still in project after removal, 0 if user is removed
+int checkProjectState(Company &company, int userIndex, int projectIndex) {
+	if (company.getProjects()[projectIndex].getMembers().size() == 0)
+		company.removeProject(projectIndex);
+
+	else {
+		vector<User> projectMembers = company.getProjects()[projectIndex].getMembers();
+		for (int i = 0; i < (int)projectMembers.size(); i++) {
+			if (company.getEmployees()[userIndex].getUsername() == projectMembers[i].getUsername())
+				return 1;
+		}
+
+		return 0;
+	}
+
+	return -1;
+}
+
 //Shows menu for project functionality
 void showProjectMenu(Company &company, int userIndex) {
 	cout << "Enter Target Project Name" << endl;
 	string projectName;
 	getline(cin, projectName);
 
+	system("cls");
 	int projectIndex= -1;
 	vector<Project> projects = company.getProjects();
-	for (int i = 0; i < projects.size(); i++) {
+	for (int i = 0; i < (int) projects.size(); i++) {
 		if(projects[i].getName() == projectName && containsName(projects[i].getMembers(), company.getEmployees()[userIndex].getUsername())){
 			projectIndex = i;
 			break;
@@ -609,7 +637,7 @@ void showProjectMenu(Company &company, int userIndex) {
 
 	bool projectRunning = true;
 	while (projectRunning && projectIndex != -1) {
-		cout << projects[projectIndex].getName() + " Project Menu" << endl;
+		cout << company.getProjects()[projectIndex].getName() + " Project Menu" << endl;
 		cout << "	1: Change Project Name" << endl;
 		cout << "	2: Add Member" << endl;
 		cout << "	3: Remove Member" << endl;
@@ -624,7 +652,7 @@ void showProjectMenu(Company &company, int userIndex) {
 		switch (convertInt(choice)) {
 		case 1:
 			system("cls");
-			getNewProjectName(company, projectIndex); //TODO not updating menu title
+			getNewProjectName(company, projectIndex);
 			break;
 
 		case 2:
@@ -634,7 +662,10 @@ void showProjectMenu(Company &company, int userIndex) {
 
 		case 3:
 			system("cls");
-			removeMemberPrompt(company, projectIndex); //TODO need to go to previous menu if logged in user gets removed
+			removeMemberPrompt(company, projectIndex);
+
+			if (checkProjectState(company, userIndex, projectIndex) == 0)
+				projectRunning = false;
 			break;
 
 		case 4:
@@ -758,8 +789,8 @@ void showEmployeeMenu(Company &company) {
 //Main controller interface
 // int _tmain (int argc, TCHAR *argv[])
 int main() {
-	checkDirectories();
 	Company company = getBootPrompt();
+	checkDirectories();
 
 	system("cls");
 	bool running = true;

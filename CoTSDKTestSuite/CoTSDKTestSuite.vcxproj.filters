@@ -32,9 +32,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="company_info.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Header_Files\Company.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -47,5 +44,8 @@
     <ClInclude Include="Header_Files\User.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="company_info.txt" />
   </ItemGroup>
 </Project>

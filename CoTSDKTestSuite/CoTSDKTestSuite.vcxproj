@@ -158,13 +158,13 @@
     <ClCompile Include="CoTSDKTestSuite.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="company_info.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Header_Files\Company.h" />
     <ClInclude Include="Header_Files\pch.h" />
     <ClInclude Include="Header_Files\Project.h" />
     <ClInclude Include="Header_Files\User.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="company_info.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
