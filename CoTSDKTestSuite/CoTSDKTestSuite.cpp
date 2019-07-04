@@ -6,6 +6,10 @@
 #include "Header_Files/Project.h"
 #include "Header_Files/Company.h"
 
+#include "Header_Files/CoTSDK.h"
+
+using namespace CoTSdk;
+
 const string COMPANY_FILE_ADDRESS = "company_info.txt";
 const string MESSAGES_DIR = "Messages";
 int convertInt(string str);
@@ -527,7 +531,7 @@ void checkDirectories() {
 
 //Open dialog to select file and add to project
 bool browseFile(Company &company, int projectIndex) {
-	char buff[FILENAME_MAX];
+	/*char buff[FILENAME_MAX];
 	char* workingPath = GetCurrentDir(buff, FILENAME_MAX);
 
 	char filename[MAX_PATH];
@@ -587,7 +591,8 @@ bool browseFile(Company &company, int projectIndex) {
 		}
 
 		return false;
-	}
+	}*/
+	return true;
 }
 
 void displayFiles(Company &company, int projectIndex) {
@@ -789,6 +794,31 @@ void showEmployeeMenu(Company &company) {
 //Main controller interface
 // int _tmain (int argc, TCHAR *argv[])
 int main() {
+	//Creates Sample Circle in gracelintesting1@gmail.com account
+	/*WCHAR SAMPLE_2_APP_ID[] = L"bingbing3722@gmail.com";
+	WCHAR SAMPLE_2_APP_PSWD[] = L"2237b";
+
+	int ERRSTAT;
+
+	ERRSTAT = InitApp(201, SAMPLE_2_APP_PSWD);
+
+	//string path = "C:\\Users\\Arun\\Desktop\\0607Screenshots\\BootMenu.png";
+	WCHAR	description[128];
+
+	swprintf(description, 128, L"A Circle of Trust known as: %s", "Test Circle");
+
+	CoTSdk::CoTCircle	circle;
+
+	WCHAR name[] = L"This was created by the SDK";
+
+	CoTSdk::createCircle(&circle,
+		name,
+		description,
+		NULL, 0
+	);*/
+
+
+
 	Company company = getBootPrompt();
 	checkDirectories();
 

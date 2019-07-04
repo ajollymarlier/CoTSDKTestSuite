@@ -44,8 +44,17 @@
     <ClInclude Include="Header_Files\User.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Header_Files\CoTSdk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="company_info.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Header_Files\CoTSdk.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Header_Files\CoTSdk.dll" />
   </ItemGroup>
 </Project>

@@ -18,6 +18,8 @@
 #include "shlobj.h"
 #include <string>
 
+#include "CoTSdk.h"
+
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
@@ -28,6 +30,7 @@
 //No Non-Windows Solution
 
 using namespace std;
+using namespace CoTSdk;
 /*using namespace NUser;
 using namespace NCompany;*/
 

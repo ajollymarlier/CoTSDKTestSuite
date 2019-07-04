@@ -2,6 +2,8 @@
 #include "pch.h"
 #include "User.h"
 
+#include "CoTSDK.h"
+
 class Project {
 	/*
 	=== Attributes ===
